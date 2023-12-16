@@ -9,7 +9,7 @@ constexpr int MAXNAMESIZE = 20;
 constexpr int MAX_LINE_LENGTH = 30;
 const char* USERNAME_ERROR_MESSAGE = "Please enter username below 20 symbols";
 const char* FILE_NAME = "database.txt";
-const char colorArray[] = {'a', 'b', 'c', 'd', 'f'};
+const char colorArray[] = {'a', 'b', 'c', 'd'};
 
 int myStrLen(const char * text) {
     if (!text) {
@@ -112,15 +112,12 @@ int randIntInRange(int start, int end) {
 
 void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
     int countOfBricks = randIntInRange(1, 4);
-    cout << countOfBricks <<  endl;
     int rowAvailabbleSpace = GAMEMATRIXROWS;
     int startBrickPosition = 0;
     for (int i = 0; i < countOfBricks; i++) {
         int currentBrickLength = randIntInRange(1, rowAvailabbleSpace / countOfBricks + 1);
-        cout << currentBrickLength << endl;
         rowAvailabbleSpace -= currentBrickLength;
         int currentBrickStartIndex = randIntInRange(0, rowAvailabbleSpace / countOfBricks);
-        cout << currentBrickStartIndex << endl;
         rowAvailabbleSpace -= currentBrickStartIndex;
         startBrickPosition += currentBrickStartIndex;
         for (int j = 0; j < currentBrickLength; j++) {
@@ -133,13 +130,7 @@ void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
 void printBoard(char matrix[][GAMEMATRIXROWS], int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            if (!matrix[i][j]) {
-                cout << 0;
-            }
-            else {
-                cout << matrix[i][j];
-            }
-            cout << " ";
+            cout << matrix[i][j] << " ";
         }
         cout << endl;
     }
@@ -154,20 +145,30 @@ void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultV
 }
 
 void makeMove() {
-
+    int x, y;
+    char direction;
+    int movePositions;
+    cout << "Enter block coordinates" << endl;
+    cin >> x >> y;
+    cout << "Enter direction" << endl;
+    cin >> direction;
+    cout << "Enter move positons" << endl;
+    cin >> movePositions;
+    
 }
 
 void runGame(char * username, int usernameCurrentPoints) {
     char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
     initMatrix(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS, '0');
     int currentRow = GAMEMATRIXROWS - 1;
-    /*while (currentRow >= 0) {
+    int a = 0;
+    while (currentRow >= 0) {
         generateRow(gameMatrix, currentRow);
+        printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         makeMove();
-        printBoard();
-    }*/
-    generateRow(gameMatrix, currentRow);
-    printBoard(gameMatrix, 10, 10);
+        currentRow--;
+    }
+    printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
 }
 
 int main()
