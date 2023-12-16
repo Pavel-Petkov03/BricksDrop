@@ -9,7 +9,7 @@ constexpr int MAXNAMESIZE = 20;
 constexpr int MAX_LINE_LENGTH = 30;
 const char* USERNAME_ERROR_MESSAGE = "Please enter username below 20 symbols";
 const char* FILE_NAME = "database.txt";
-
+const char colorArray[] = {'a', 'b', 'c', 'd', 'f'};
 
 int myStrLen(const char * text) {
     if (!text) {
@@ -102,19 +102,81 @@ int logUser(char *username, const char* filename, unsigned int &userCurrentPoint
         cout << username << " successfully registered" << endl;
         return 0;
     }
-
-    
+}
+int randIntInRange(int start, int end) {
+    srand(time(0));
+    int range = end - start + 1;
+    return rand() % range + start;
 }
 
 
+void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
+    int countOfBricks = randIntInRange(1, 4);
+    cout << countOfBricks <<  endl;
+    int rowAvailabbleSpace = GAMEMATRIXROWS;
+    int startBrickPosition = 0;
+    for (int i = 0; i < countOfBricks; i++) {
+        int currentBrickLength = randIntInRange(1, rowAvailabbleSpace / countOfBricks + 1);
+        cout << currentBrickLength << endl;
+        rowAvailabbleSpace -= currentBrickLength;
+        int currentBrickStartIndex = randIntInRange(0, rowAvailabbleSpace / countOfBricks);
+        cout << currentBrickStartIndex << endl;
+        rowAvailabbleSpace -= currentBrickStartIndex;
+        startBrickPosition += currentBrickStartIndex;
+        for (int j = 0; j < currentBrickLength; j++) {
+            matrix[currentRow][j + startBrickPosition] = colorArray[i];
+        }
+        startBrickPosition += currentBrickLength;
+    }
+}
 
+void printBoard(char matrix[][GAMEMATRIXROWS], int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (!matrix[i][j]) {
+                cout << 0;
+            }
+            else {
+                cout << matrix[i][j];
+            }
+            cout << " ";
+        }
+        cout << endl;
+    }
+}
+
+void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultValue) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = defaultValue;
+        }
+    }
+}
+
+void makeMove() {
+
+}
+
+void runGame(char * username, int usernameCurrentPoints) {
+    char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
+    initMatrix(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS, '0');
+    int currentRow = GAMEMATRIXROWS - 1;
+    /*while (currentRow >= 0) {
+        generateRow(gameMatrix, currentRow);
+        makeMove();
+        printBoard();
+    }*/
+    generateRow(gameMatrix, currentRow);
+    printBoard(gameMatrix, 10, 10);
+}
 
 int main()
 {
-    char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
-    int currentRow = GAMEMATRIXROWS - 1;
-    char username[MAXNAMESIZE];
-    readUsername(username);
-    unsigned int usernameCurrentPoints = 0;
-    logUser(username, FILE_NAME, usernameCurrentPoints);
+    
+    //char username[MAXNAMESIZE];
+    //readUsername(username);
+    //unsigned int usernameCurrentPoints = 0;
+    //logUser(username, FILE_NAME, usernameCurrentPoints);
+    char name[10] = "pavel";
+    runGame(name, 0);
 }
