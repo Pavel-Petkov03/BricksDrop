@@ -146,6 +146,11 @@ void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultV
     }
 }
 
+
+bool isRowDestroyable(char matrix[GAMEMATRIXROWS], int currentRow) {
+
+}
+
 void makeMove() {
     int x, y;
     char direction;
@@ -158,14 +163,21 @@ void makeMove() {
     cin >> movePositions;
 }
 
-void runGame(char * username, int usernameCurrentPoints) {
+
+bool isDestroyableRow() {
+    return false;
+}
+
+void runGame(char * username, unsigned int usernameCurrentPoints) {
     char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
     initMatrix(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS, '0');
     int currentRow = GAMEMATRIXROWS - 1;
     int a = 0;
     while (currentRow >= 0) {
         generateRow(gameMatrix, currentRow);
-
+        if (isDestroyableRow()) {
+            continue;
+        }
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         makeMove();
         currentRow--;
@@ -180,6 +192,5 @@ int main()
     readUsername(username);
     unsigned int usernameCurrentPoints = 0;
     logUser(username, FILE_NAME, usernameCurrentPoints);
-    char name[10] = "pavel";
-    runGame(name, 0);
+    runGame(username, usernameCurrentPoints);
 }
