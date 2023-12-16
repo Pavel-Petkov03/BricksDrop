@@ -1,10 +1,4 @@
+xs - 0
+ts - 0
 ff - 0
-dd - 0
-ff - 0
-jj - 0
-ddd - 0
-fff - 0
-jpx - 0
-dddd - 0
-pavel - 0
-ddddddddddddddddddd - 0
+sd - 0

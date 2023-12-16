@@ -38,6 +38,7 @@ bool stringsAreEqual (char * first, char * second) {
 }
 
 void readUsername(char * username) {
+    cout << "Enter username" << endl;
     const int bufferSize = 30;
     cin.getline(username, MAXNAMESIZE);
     while (myStrLen(username) > MAXNAMESIZE) {
@@ -53,10 +54,11 @@ int fromCharToDecimal(char symbol){
 
 
 void splitRowFromFile(char* line, char* currentUsername, int &currentPoinst) {
+    int index = 0;
     while (*line != ' ') {
-        *currentUsername = *line;
+        currentUsername[index] = *line;
         line++;
-        currentUsername++;
+        index++;
     }
     line += 3;
     while ((*line)) {
@@ -70,7 +72,7 @@ void splitRowFromFile(char* line, char* currentUsername, int &currentPoinst) {
 bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurrentPoints) {
     char line[MAX_LINE_LENGTH];
     while (MyFile.getline(line, MAX_LINE_LENGTH)) {
-        char currentUsername[10] = " ";
+        char currentUsername[MAXNAMESIZE] = " ";
         int currentPoints = 0;
         splitRowFromFile(line, currentUsername, currentPoints);
         if (stringsAreEqual(currentUsername, username)) {
@@ -154,7 +156,6 @@ void makeMove() {
     cin >> direction;
     cout << "Enter move positons" << endl;
     cin >> movePositions;
-    
 }
 
 void runGame(char * username, int usernameCurrentPoints) {
@@ -164,6 +165,7 @@ void runGame(char * username, int usernameCurrentPoints) {
     int a = 0;
     while (currentRow >= 0) {
         generateRow(gameMatrix, currentRow);
+
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         makeMove();
         currentRow--;
@@ -174,10 +176,10 @@ void runGame(char * username, int usernameCurrentPoints) {
 int main()
 {
     
-    //char username[MAXNAMESIZE];
-    //readUsername(username);
-    //unsigned int usernameCurrentPoints = 0;
-    //logUser(username, FILE_NAME, usernameCurrentPoints);
+    char username[MAXNAMESIZE];
+    readUsername(username);
+    unsigned int usernameCurrentPoints = 0;
+    logUser(username, FILE_NAME, usernameCurrentPoints);
     char name[10] = "pavel";
     runGame(name, 0);
 }
