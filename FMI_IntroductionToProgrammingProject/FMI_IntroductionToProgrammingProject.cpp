@@ -46,10 +46,37 @@ void readUsername(char * username) {
     }
 }
 
+
+int fromCharToDecimal(char symbol){
+    return symbol - '0';
+}
+
+
+void splitRowFromFile(char* line, char* currentUsername, int &currentPoinst) {
+    while (*line != ' ') {
+        *currentUsername = *line;
+        line++;
+        currentUsername++;
+    }
+    line += 3;
+    while ((*line)) {
+        int digit = fromCharToDecimal(*line);
+        currentPoinst *= 10;
+        currentPoinst += digit;
+        line++;
+    }
+}
+
 bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurrentPoints) {
     char line[MAX_LINE_LENGTH];
     while (MyFile.getline(line, MAX_LINE_LENGTH)) {
-        cout << line << endl;
+        char currentUsername[10] = " ";
+        int currentPoints = 0;
+        splitRowFromFile(line, currentUsername, currentPoints);
+        if (stringsAreEqual(currentUsername, username)) {
+            userCurrentPoints = currentPoints;
+            return true;
+        }
     }
     return false;
 }
@@ -57,20 +84,26 @@ bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurr
 
 int logUser(char *username, const char* filename, unsigned int &userCurrentPoints)
 {
-    fstream MyFile(filename, ios::in | ios::out);
+    fstream MyFile(filename, ios::in | ios::out); // starts from the beginning of the file
     if (!MyFile.is_open()) {
         return 1;
     }
 
     if (userAlreadyLoggedIn(username, MyFile, userCurrentPoints)) {
+        cout << "Welcome " << username << " You have " << userCurrentPoints << " max score" << endl;
+    }
+    else {
+        MyFile.clear();
+        MyFile.seekp(0, ios::end); // this goes to the end of the file
+
+        MyFile << username << " - " << "0" << endl;
+        MyFile.close();
+
+        cout << username << " successfully registered" << endl;
+        return 0;
     }
 
-    MyFile.clear();
-    MyFile.seekp(0, ios::end);
-
-    MyFile << username << " - " << "0" << endl;
-    MyFile.close();
-    return 0;
+    
 }
 
 
@@ -84,5 +117,4 @@ int main()
     readUsername(username);
     unsigned int usernameCurrentPoints = 0;
     logUser(username, FILE_NAME, usernameCurrentPoints);
-    cout << username << endl;
 }
