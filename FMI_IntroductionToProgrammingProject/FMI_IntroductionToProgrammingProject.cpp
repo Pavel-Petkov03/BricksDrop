@@ -27,34 +27,29 @@ bool stringsAreEqual (char * first, char * second) {
     if (!first || !second) {
         return false;
     }
-    while (*first && *second) {
-        if (*first != *second) {
+    int index = 0;
+    while (first[index] && second[index]) {
+        if (first[index] != second[index]) {
             return false;
         }
-        first++;
-        second++;
+        index++;
     }
-    return (*first - *second) == 0;
+    return (first[index] - second[index]) == 0;
 }
 
 void readUsername(char * username) {
+    const int bufferSize = 30;
     cin.getline(username, MAXNAMESIZE);
-    int wordLen = myStrLen(username);
-    while (wordLen > MAXNAMESIZE) {
+    while (myStrLen(username) > MAXNAMESIZE) {
         cout << USERNAME_ERROR_MESSAGE << endl;
         cin.getline(username, MAXNAMESIZE);
-        wordLen = myStrLen(username);
     }
 }
 
 bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurrentPoints) {
     char line[MAX_LINE_LENGTH];
     while (MyFile.getline(line, MAX_LINE_LENGTH)) {
-        if (stringsAreEqual(line, username)) {
-
-
-            return true;
-        }
+        cout << line << endl;
     }
     return false;
 }
@@ -62,17 +57,18 @@ bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurr
 
 int logUser(char *username, const char* filename, unsigned int &userCurrentPoints)
 {
-    fstream MyFile(filename, ios::app);
+    fstream MyFile(filename, ios::in | ios::out);
     if (!MyFile.is_open()) {
         return 1;
     }
+
     if (userAlreadyLoggedIn(username, MyFile, userCurrentPoints)) {
-        cout << "Welcome to your profile " << username << " Your max score is" << userCurrentPoints << endl;
     }
 
+    MyFile.clear();
+    MyFile.seekp(0, ios::end);
 
-    MyFile << username << ' - ' << '0' << endl;
-
+    MyFile << username << " - " << "0" << endl;
     MyFile.close();
     return 0;
 }
@@ -88,4 +84,5 @@ int main()
     readUsername(username);
     unsigned int usernameCurrentPoints = 0;
     logUser(username, FILE_NAME, usernameCurrentPoints);
+    cout << username << endl;
 }

@@ -1,0 +1,6 @@
+ff - 0
+dd - 0
+ff - 0
+jj - 0
+ddd - 0
+fff - 0
