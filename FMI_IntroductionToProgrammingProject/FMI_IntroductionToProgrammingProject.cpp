@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <windows.h>
 using namespace std;
 constexpr int GAMEMATRIXROWS = 10;
 constexpr int MAXNAMESIZE = 20;
@@ -10,6 +11,16 @@ constexpr int MAX_LINE_LENGTH = 30;
 const char* USERNAME_ERROR_MESSAGE = "Please enter username below 20 symbols";
 const char* FILE_NAME = "database.txt";
 const char colorArray[] = {'a', 'b', 'c', 'd'};
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+int getIndex(const char* arr, char symbol) {
+    for (int i = 0;  i < 4; i++) {
+        if (arr[i] == symbol) {
+            return i+1;
+        }
+    }
+    return 10;
+}
 
 int myStrLen(const char * text) {
     if (!text) {
@@ -106,7 +117,6 @@ int logUser(char *username, const char* filename, unsigned int &userCurrentPoint
     }
 }
 int randIntInRange(int start, int end) {
-    srand(time(0));
     int range = end - start + 1;
     return rand() % range + start;
 }
@@ -132,6 +142,7 @@ void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
 void printBoard(char matrix[][GAMEMATRIXROWS], int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
+            SetConsoleTextAttribute(hConsole, getIndex(colorArray, matrix[i][j]));
             cout << matrix[i][j] << " ";
         }
         cout << endl;
@@ -245,6 +256,7 @@ bool isShrinkable(char matrix[][GAMEMATRIXROWS], int currentRow) {
 void runGame(char * username, unsigned int usernameCurrentPoints) {
     char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
     initMatrix(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS, '0');
+
     int currentRow = GAMEMATRIXROWS - 1;
     int a = 0;
     while (currentRow >= 0) {
