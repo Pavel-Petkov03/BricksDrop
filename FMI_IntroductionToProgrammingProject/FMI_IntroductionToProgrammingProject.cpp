@@ -195,12 +195,9 @@ bool allRowFilled(char matrix[][GAMEMATRIXROWS], int currentFilledRow) {
 void destroyRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
     for (int i = GAMEMATRIXROWS - 1; i > currentRow; i--) {
         if (allRowFilled(matrix, i)) {
-            for (int j = i; j > currentRow; j--) {
-                for (int q = 0; q < GAMEMATRIXROWS; q++) {
-                    matrix[j][q] = matrix[j - 1][q];
-                }
-            }
-            break;
+             for (int q = 0; q < GAMEMATRIXROWS; q++) {
+                 matrix[i][q] = matrix[i - 1][q];
+             }
         }
     }
 }
@@ -220,7 +217,6 @@ bool isShrinkable(char matrix[][GAMEMATRIXROWS], int currentRow) {
                     if (availableSpaceInRowBelow(matrix, startBrickIndex, endBrickIndex, i)) {
                         isMovedDown = true;
                         moveBrickDown(matrix, startBrickIndex, endBrickIndex, i);
-                        
                     }
                     if (matrix[i][j] != '0') {
                         startBrickIndex = j;
@@ -251,10 +247,12 @@ void runGame(char * username, unsigned int usernameCurrentPoints) {
         generateRow(gameMatrix, currentRow);
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         cout << endl;
-        while (isShrinkable(gameMatrix, currentRow)) {
+        do
+        {
             usernameCurrentPoints += 10;
             destroyRow(gameMatrix, currentRow);
-        }
+        } while (isShrinkable(gameMatrix, currentRow));
+
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         makeMove();
         currentRow--;
