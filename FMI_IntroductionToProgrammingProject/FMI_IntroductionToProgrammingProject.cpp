@@ -148,7 +148,7 @@ void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultV
 
 
 bool isRowDestroyable(char matrix[GAMEMATRIXROWS], int currentRow) {
-
+    return false;
 }
 
 void makeMove() {
@@ -164,9 +164,83 @@ void makeMove() {
 }
 
 
-bool isDestroyableRow() {
-    return false;
+bool availableSpaceInRowBelow(char matrix[][GAMEMATRIXROWS], int startIndex, int endIndex, int currentRow) {
+    for (int i = startIndex; i <= endIndex; i++) {
+        if (matrix[currentRow+1][i] != '0') {
+            return false;
+        }
+    }
+    return true;
 }
+
+
+void moveBrickDown(char matrix[][GAMEMATRIXROWS], int startIndex, int endIndex, int currentRow) {
+    for (int i = startIndex; i <= endIndex; i++) {
+        matrix[currentRow + 1][i] = matrix[currentRow][i];
+        matrix[currentRow][i] = '0';
+    }
+}
+
+
+bool allRowFilled(char matrix[][GAMEMATRIXROWS], int currentFilledRow) {
+    for (int i = 0; i < GAMEMATRIXROWS; i++) {
+        if (matrix[currentFilledRow][i] == '0') {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void destroyRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
+    for (int i = GAMEMATRIXROWS - 1; i > currentRow; i--) {
+        if (allRowFilled(matrix, i)) {
+            for (int j = i; j > currentRow; j--) {
+                for (int q = 0; q < GAMEMATRIXROWS; q++) {
+                    matrix[j][q] = matrix[j - 1][q];
+                }
+            }
+            break;
+        }
+    }
+}
+
+bool isShrinkable(char matrix[][GAMEMATRIXROWS], int currentRow) {
+    bool isMovedDown = false;
+    for (int i = currentRow; i < GAMEMATRIXROWS - 1; i++) {
+        int startBrickIndex = 0;
+        int endBrickIndex = 0;
+        char currentColor = matrix[currentRow][0];
+        bool isBrick = false;
+        for (int j = 0; j < GAMEMATRIXROWS; j++) {
+            if (matrix[i][j] == '0' || (currentColor != '0' && currentColor != matrix[i][j])) {
+                if (isBrick) {
+                    isBrick = false;
+                    endBrickIndex = j-1;
+                    if (availableSpaceInRowBelow(matrix, startBrickIndex, endBrickIndex, i)) {
+                        isMovedDown = true;
+                        moveBrickDown(matrix, startBrickIndex, endBrickIndex, i);
+                        
+                    }
+                    if (matrix[i][j] != '0') {
+                        startBrickIndex = j;
+                        isBrick = true;
+                    }
+                    currentColor = matrix[i][j];
+                }
+            }
+            else {
+                if (!isBrick) {
+                    currentColor = matrix[i][j];
+                    startBrickIndex = j;
+                }
+                isBrick = true;
+            }
+        }
+    }
+    return isMovedDown;
+}
+
 
 void runGame(char * username, unsigned int usernameCurrentPoints) {
     char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
@@ -175,8 +249,11 @@ void runGame(char * username, unsigned int usernameCurrentPoints) {
     int a = 0;
     while (currentRow >= 0) {
         generateRow(gameMatrix, currentRow);
-        if (isDestroyableRow()) {
-            continue;
+        printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
+        cout << endl;
+        while (isShrinkable(gameMatrix, currentRow)) {
+            usernameCurrentPoints += 10;
+            destroyRow(gameMatrix, currentRow);
         }
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         makeMove();
