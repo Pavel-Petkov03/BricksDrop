@@ -16,7 +16,7 @@ HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 int getIndex(const char* arr, char symbol) {
     for (int i = 0;  i < 4; i++) {
         if (arr[i] == symbol) {
-            return i+1;
+            return i+5;
         }
     }
     return 10;
@@ -117,6 +117,7 @@ int logUser(char *username, const char* filename, unsigned int &userCurrentPoint
     }
 }
 int randIntInRange(int start, int end) {
+    
     int range = end - start + 1;
     return rand() % range + start;
 }
@@ -132,8 +133,10 @@ void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
         int currentBrickStartIndex = randIntInRange(0, rowAvailabbleSpace / countOfBricks);
         rowAvailabbleSpace -= currentBrickStartIndex;
         startBrickPosition += currentBrickStartIndex;
+        int q = randIntInRange(0, 3);
+        cout << q << endl;
         for (int j = 0; j < currentBrickLength; j++) {
-            matrix[currentRow][j + startBrickPosition] = colorArray[i];
+            matrix[currentRow][j + startBrickPosition] = colorArray[q];
         }
         startBrickPosition += currentBrickLength;
     }
@@ -259,7 +262,7 @@ void runGame(char * username, unsigned int usernameCurrentPoints) {
 
     int currentRow = GAMEMATRIXROWS - 1;
     int a = 0;
-    while (currentRow >= 0) {
+    while (currentRow > 0) {
         generateRow(gameMatrix, currentRow);
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         cout << endl;
@@ -278,9 +281,9 @@ void runGame(char * username, unsigned int usernameCurrentPoints) {
 
 int main()
 {
-    
     char username[MAXNAMESIZE];
     readUsername(username);
+    srand(time(0));
     unsigned int usernameCurrentPoints = 0;
     logUser(username, FILE_NAME, usernameCurrentPoints);
     runGame(username, usernameCurrentPoints);
