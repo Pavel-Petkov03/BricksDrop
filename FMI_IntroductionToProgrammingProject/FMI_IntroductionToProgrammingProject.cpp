@@ -192,12 +192,14 @@ bool allRowFilled(char matrix[][GAMEMATRIXROWS], int currentFilledRow) {
 }
 
 
-void destroyRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
+void destroyRow(char matrix[][GAMEMATRIXROWS], int &currentRow) {
     for (int i = GAMEMATRIXROWS - 1; i > currentRow; i--) {
         if (allRowFilled(matrix, i)) {
              for (int q = 0; q < GAMEMATRIXROWS; q++) {
                  matrix[i][q] = matrix[i - 1][q];
+                 matrix[i-1][q] = '0';
              }
+             currentRow++;
         }
     }
 }
@@ -209,7 +211,7 @@ bool isShrinkable(char matrix[][GAMEMATRIXROWS], int currentRow) {
         int endBrickIndex = 0;
         char currentColor = matrix[currentRow][0];
         bool isBrick = false;
-        for (int j = 0; j < GAMEMATRIXROWS; j++) {
+        for (int j = 0; j <= GAMEMATRIXROWS; j++) {
             if (matrix[i][j] == '0' || (currentColor != '0' && currentColor != matrix[i][j])) {
                 if (isBrick) {
                     isBrick = false;
@@ -236,6 +238,8 @@ bool isShrinkable(char matrix[][GAMEMATRIXROWS], int currentRow) {
     }
     return isMovedDown;
 }
+
+
 
 
 void runGame(char * username, unsigned int usernameCurrentPoints) {
