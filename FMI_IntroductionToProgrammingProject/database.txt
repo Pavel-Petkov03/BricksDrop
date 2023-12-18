@@ -28,3 +28,4 @@ pavle - 0
 1 1 r 1 - 0
 oavel - 0
 1 1 r 1 - 0
+petq - 0
