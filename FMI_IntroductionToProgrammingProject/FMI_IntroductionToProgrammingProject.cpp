@@ -15,7 +15,7 @@ HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 int getIndex(const char* arr, char symbol) {
     for (int i = 0;  i < 4; i++) {
         if (arr[i] == symbol) {
-            return i+5;
+            return i+1;
         }
     }
     return 10;
