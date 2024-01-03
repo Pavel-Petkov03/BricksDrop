@@ -232,36 +232,31 @@ void findDestroyableRow(char matrix[][GAMEMATRIXROWS], int &currentRow, unsigned
 
 
 bool allRowShrinked(char matrix[][GAMEMATRIXROWS], int &currentRow, bool &isMovedDown, int i) {
-    int startBrickIndex = 0;
-    int endBrickIndex = 0;
-    char currentColor = matrix[i][0];
-    bool isBrick = false;
-    bool allRowDown = true;
-    for (int j = 0; j <= GAMEMATRIXROWS; j++) {
-        if (matrix[i][j] == '0' || (currentColor != '0' && currentColor != matrix[i][j])) {
-            if (isBrick) {
-                isBrick = false;
-                endBrickIndex = j - 1;
-                if (availableSpaceInRowBelow(matrix, startBrickIndex, endBrickIndex, i)) {
-                    isMovedDown = true;
-                    moveBrickDown(matrix, startBrickIndex, endBrickIndex, i);
-                }
-                else {
-                    allRowDown = false;
-                }
-                if (matrix[i][j] != '0') {
-                    startBrickIndex = j;
-                    isBrick = true;
-                }
-                currentColor = matrix[i][j];
-            }
+    int m[4][2];
+    int mI = 0;
+    int currentIndex = 0;
+    while (currentIndex < GAMEMATRIXROWS) {
+        if (matrix[i][currentIndex] != '0') {
+            int startBlockIndex = 0;
+            int endBlockIndex = 0;
+            findBlockRange(matrix[i], startBlockIndex, endBlockIndex, currentIndex);
+            currentIndex = endBlockIndex + 1;
+            m[mI][0] = startBlockIndex;
+            m[mI][1] = endBlockIndex;
+            mI++;
         }
         else {
-            if (!isBrick) {
-                currentColor = matrix[i][j];
-                startBrickIndex = j;
-            }
-            isBrick = true;
+            currentIndex++;
+        }
+    }
+    bool allRowDown = true;
+    for (int j = 0; j < mI; j++) {
+        if (availableSpaceInRowBelow(matrix, m[j][0], m[j][1], i)) {
+            isMovedDown = true;
+            moveBrickDown(matrix, m[j][0], m[j][1], i);
+        }
+        else {
+            allRowDown = false;
         }
     }
     return allRowDown;
