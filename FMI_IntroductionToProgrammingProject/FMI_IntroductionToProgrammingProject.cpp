@@ -49,10 +49,10 @@ bool stringsAreEqual (char * first, char * second) {
 
 void readUsername(char * username) {
     cout << "Enter username" << endl;
-    cin.getline(username, MAXNAMESIZE);
+    cin >> username;
     while (myStrLen(username) > MAXNAMESIZE) {
         cout << USERNAME_ERROR_MESSAGE << endl;
-        cin.getline(username, MAXNAMESIZE);
+        cin >> username;
     }
 }
 
@@ -157,13 +157,6 @@ void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultV
         }
     }
 }
-
-
-bool isBlock() {
-    return true;
-}
-
-
 
 void findBlockRange(char* row, int &startBlockIndex, int& endBlockIndex, int startPosition) {
     char startColor = row[startPosition];
@@ -345,7 +338,6 @@ void makeMove(char matrix[][GAMEMATRIXROWS], int currentRow) {
     cin >> row >> col;
     cin >> direction;
     cin >> movePositions;
-
     int startBlockIndex = 0;
     int endBlockIndex = 0;
     findBlockRange(matrix[row], startBlockIndex, endBlockIndex, col);
@@ -364,18 +356,59 @@ void runGame(char* username, unsigned int usernameCurrentPoints) {
         shrinkRows(gameMatrix, currentRow, usernameCurrentPoints);
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
         makeMove(gameMatrix, currentRow);
+        system("cls"); // clears the console
         shrinkRows(gameMatrix, currentRow, usernameCurrentPoints);
         currentRow--;
     }
     cout << usernameCurrentPoints << endl;
 }
 
-int main()
-{
+
+void printDialogue() {
+    
+    cout << "Press 1 if you want to play the game" << endl;
+    cout << "Press 2 if you want to see the leaderboard" << endl;
+    cout << "Press anything else if you want to leave the game" << endl;
+}
+
+
+void loadBricksDropGame() {
     char username[MAXNAMESIZE];
     readUsername(username);
     srand(time(0));
     unsigned int usernameCurrentPoints = 0;
-    logUser(username, FILE_NAME, usernameCurrentPoints);
+    unsigned int userMaxPoints = 0;
+    logUser(username, FILE_NAME, userMaxPoints);
     runGame(username, usernameCurrentPoints);
+}
+
+void showLeaderBoard() {
+
+}
+
+void runOptions(bool &mainLoop) {
+    int command;
+    cin >> command;
+    switch (command)
+    {
+    case 1:
+        loadBricksDropGame();
+        break;
+    case 2:
+        showLeaderBoard();
+        break;
+    default:
+        mainLoop = false;
+        break;
+    }
+}
+
+int main()
+{
+    cout << "Welcome to Bricks Drop" << endl;
+    bool mainLoop = true;
+    while (mainLoop) {
+        printDialogue();
+        runOptions(mainLoop);
+    }
 }
