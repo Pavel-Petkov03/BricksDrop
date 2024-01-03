@@ -118,6 +118,9 @@ int logUser(char *username, const char* filename, unsigned int &userCurrentPoint
 }
 int randIntInRange(int start, int end) {
     int range = end - start + 1;
+    if (range == 0) {
+        cout << "Everything fucked up" << endl;
+    }
     return rand() % range + start;
 }
 
@@ -355,6 +358,7 @@ void runGame(char* username, unsigned int usernameCurrentPoints) {
         generateRowUntilNotDestroyable(gameMatrix, currentRow, usernameCurrentPoints);
         shrinkRows(gameMatrix, currentRow, usernameCurrentPoints);
         printBoard(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS);
+        cout << "Current score is " << usernameCurrentPoints << endl;
         makeMove(gameMatrix, currentRow);
         system("cls"); // clears the console
         shrinkRows(gameMatrix, currentRow, usernameCurrentPoints);
@@ -365,7 +369,6 @@ void runGame(char* username, unsigned int usernameCurrentPoints) {
 
 
 void printDialogue() {
-    
     cout << "Press 1 if you want to play the game" << endl;
     cout << "Press 2 if you want to see the leaderboard" << endl;
     cout << "Press anything else if you want to leave the game" << endl;
@@ -380,6 +383,26 @@ void loadBricksDropGame() {
     unsigned int userMaxPoints = 0;
     logUser(username, FILE_NAME, userMaxPoints);
     runGame(username, usernameCurrentPoints);
+    if (usernameCurrentPoints > userMaxPoints) {
+        cout << "You have beaten your record" << endl;
+        cout << "Your new record is " << usernameCurrentPoints << endl;
+    }
+    fstream MyFile(FILE_NAME, ios::in | ios::out); // starts from the beginning of the file
+    if (!MyFile.is_open()) {
+        return;
+    }
+    char line[MAX_LINE_LENGTH];
+    while (MyFile.getline(line, MAX_LINE_LENGTH)) {
+        char currentUsername[MAXNAMESIZE] = " ";
+        int currentPoints = 0;
+        splitRowFromFile(line, currentUsername, currentPoints);
+        if (stringsAreEqual(currentUsername, username)) {
+            MyFile << username << " - " << usernameCurrentPoints;
+            break;
+        }
+    }
+    MyFile.close();
+
 }
 
 void showLeaderBoard() {
