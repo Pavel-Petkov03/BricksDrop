@@ -11,15 +11,17 @@ const char* FILE_NAME = "database.txt";
 const char colorArray[] = {'a', 'b', 'c', 'd'};
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-int getIndex(const char* arr, char symbol) {
-    for (int i = 0;  i < 4; i++) {
+int getColorIndex(const char* arr, char symbol) {
+    int defaultColor = 12;
+    int startColorIndex = 0;
+    int endColorIndex = 4;
+    for (int i = startColorIndex;  i < endColorIndex; i++) {
         if (arr[i] == symbol) {
             return i+1;
         }
     }
-    return 10;
+    return defaultColor;
 }
-
 int myStrLen(const char * text) {
     if (!text) {
         return -1;
@@ -31,8 +33,7 @@ int myStrLen(const char * text) {
     }
     return counter;
 }
-
-bool stringsAreEqual (char * first, char * second) {
+bool stringsAreEqual (const char* first, const char* second) {
     if (!first || !second) {
         return false;
     }
@@ -45,8 +46,7 @@ bool stringsAreEqual (char * first, char * second) {
     }
     return (first[index] - second[index]) == 0;
 }
-
-void readUsername(char * username) {
+void readUsername(char* username) {
     cout << "Enter username" << endl;
     cin >> username;
     while (myStrLen(username) > MAXNAMESIZE) {
@@ -54,13 +54,9 @@ void readUsername(char * username) {
         cin >> username;
     }
 }
-
-
 int fromCharToDecimal(char symbol){
     return symbol - '0';
 }
-
-
 void splitRowFromFile(char* line, char* currentUsername, int &currentPoints) {
     int index = 0;
     const int spacesBetweenData = 3; 
@@ -77,7 +73,6 @@ void splitRowFromFile(char* line, char* currentUsername, int &currentPoints) {
         line++;
     }
 }
-
 bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurrentPoints) {
     char line[MAX_LINE_LENGTH];
     while (MyFile.getline(line, MAX_LINE_LENGTH)) {
@@ -91,8 +86,6 @@ bool userAlreadyLoggedIn(char* username, fstream& MyFile, unsigned int &userCurr
     }
     return false;
 }
-
-
 int logUser(char *username, const char* filename, unsigned int &userCurrentPoints)
 {
     fstream MyFile(filename, ios::in | ios::out); // starts from the beginning of the file
@@ -122,10 +115,10 @@ int randIntInRange(int start, int end) {
     }
     return rand() % range + start;
 }
-
-
 void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
-    int countOfBricks = randIntInRange(1, 4);
+    int minBricksCount = 1;
+    int maxBricksCount = 4;
+    int countOfBricks = randIntInRange(minBricksCount, maxBricksCount);
     int rowAvailableSpace = GAMEMATRIXROWS;
     int startBrickPosition = 0;
     for (int i = 0; i < countOfBricks; i++) {
@@ -141,17 +134,15 @@ void generateRow(char matrix[][GAMEMATRIXROWS], int currentRow) {
         startBrickPosition += currentBrickLength;
     }
 }
-
 void printBoard(char matrix[][GAMEMATRIXROWS], int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            SetConsoleTextAttribute(hConsole, getIndex(colorArray, matrix[i][j]));
+            SetConsoleTextAttribute(hConsole, getColorIndex(colorArray, matrix[i][j]));
             cout << matrix[i][j] << " ";
         }
         cout << endl;
     }
 }
-
 void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultValue) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -159,7 +150,6 @@ void initMatrix(char matrix[][GAMEMATRIXROWS], int rows, int cols, char defaultV
         }
     }
 }
-
 void findBlockRange(char* row, int &startBlockIndex, int& endBlockIndex, int startPosition) {
     char startColor = row[startPosition];
     startBlockIndex = 0;
@@ -177,7 +167,6 @@ void findBlockRange(char* row, int &startBlockIndex, int& endBlockIndex, int sta
         }
     }
 }
-
 bool availableSpaceInRowBelow(char matrix[][GAMEMATRIXROWS], int startIndex, int endIndex, int currentRow) {
     for (int i = startIndex; i <= endIndex; i++) {
         if (matrix[currentRow+1][i] != '0') {
@@ -186,16 +175,12 @@ bool availableSpaceInRowBelow(char matrix[][GAMEMATRIXROWS], int startIndex, int
     }
     return true;
 }
-
-
 void moveBrickDown(char matrix[][GAMEMATRIXROWS], int startIndex, int endIndex, int currentRow) {
     for (int i = startIndex; i <= endIndex; i++) {
         matrix[currentRow + 1][i] = matrix[currentRow][i];
         matrix[currentRow][i] = '0';
     }
 }
-
-
 bool allRowFilled(char matrix[][GAMEMATRIXROWS], int currentFilledRow) {
     for (int i = 0; i < GAMEMATRIXROWS; i++) {
         if (matrix[currentFilledRow][i] == '0') {
@@ -204,8 +189,6 @@ bool allRowFilled(char matrix[][GAMEMATRIXROWS], int currentFilledRow) {
     }
     return true;
 }
-
-
 void destroyRow(char matrix[][GAMEMATRIXROWS], int rowBelow, int &currentRow, unsigned int &currentUserPoints) {
     for (int q = 0; q < GAMEMATRIXROWS; q++) {
         matrix[rowBelow][q] = matrix[rowBelow - 1][q];
@@ -214,8 +197,6 @@ void destroyRow(char matrix[][GAMEMATRIXROWS], int rowBelow, int &currentRow, un
     currentUserPoints += 10;
     cout << "You got 10 points" << endl;
 }
-
-
 void findDestroyableRow(char matrix[][GAMEMATRIXROWS], int &currentRow, unsigned int&currentUserPoints) {
     for (int i = GAMEMATRIXROWS - 1; i > currentRow; i--) {
         if (allRowFilled(matrix, i)) {
@@ -224,17 +205,15 @@ void findDestroyableRow(char matrix[][GAMEMATRIXROWS], int &currentRow, unsigned
         }
     }
 }
-
-
-bool allRowShrinked(char matrix[][GAMEMATRIXROWS], int &currentRow, bool &isMovedDown, int i) {
+bool allRowShrinked(char matrix[][GAMEMATRIXROWS], int &currentRow, bool &isMovedDown, int rowIndex) {
     int brickMatrix[5][2];
     int brickMatrixIndex = 0;
     int currentIndex = 0;
     while (currentIndex < GAMEMATRIXROWS) {
-        if (matrix[i][currentIndex] != '0') {
+        if (matrix[rowIndex][currentIndex] != '0') {
             int startBlockIndex = 0;
             int endBlockIndex = 0;
-            findBlockRange(matrix[i], startBlockIndex, endBlockIndex, currentIndex);
+            findBlockRange(matrix[rowIndex], startBlockIndex, endBlockIndex, currentIndex);
             currentIndex = endBlockIndex + 1;
             brickMatrix[brickMatrixIndex][0] = startBlockIndex;
             brickMatrix[brickMatrixIndex][1] = endBlockIndex;
@@ -246,9 +225,9 @@ bool allRowShrinked(char matrix[][GAMEMATRIXROWS], int &currentRow, bool &isMove
     }
     bool allRowDown = true;
     for (int j = 0; j < brickMatrixIndex; j++) {
-        if (availableSpaceInRowBelow(matrix, brickMatrix[j][0], brickMatrix[j][1], i)) {
+        if (availableSpaceInRowBelow(matrix, brickMatrix[j][0], brickMatrix[j][1], rowIndex)) {
             isMovedDown = true;
-            moveBrickDown(matrix, brickMatrix[j][0], brickMatrix[j][1], i);
+            moveBrickDown(matrix, brickMatrix[j][0], brickMatrix[j][1], rowIndex);
         }
         else {
             allRowDown = false;
@@ -256,16 +235,12 @@ bool allRowShrinked(char matrix[][GAMEMATRIXROWS], int &currentRow, bool &isMove
     }
     return allRowDown;
 }
-
- 
-
 bool isShrinkable(char matrix[][GAMEMATRIXROWS], int &currentRow) {
     bool isMovedDown = false;
     bool allRowDown = false;
     for (int i = GAMEMATRIXROWS - 2; i >= currentRow; i--) {
         if (allRowShrinked(matrix, currentRow, isMovedDown, i)) {
             allRowDown = true;
-            cout << "Everything dropped down" << endl;
         }
     }
     if (allRowDown) {
@@ -273,15 +248,12 @@ bool isShrinkable(char matrix[][GAMEMATRIXROWS], int &currentRow) {
     }
     return isMovedDown;
 }
-
-
 void shrinkRows(char matrix[][GAMEMATRIXROWS], int &currentRow, unsigned int& usernameCurrentPoints) {
     do
     {
         findDestroyableRow(matrix, currentRow, usernameCurrentPoints);
     } while (isShrinkable(matrix, currentRow));
 }
-
 void generateRowUntilNotDestroyable(char matrix[][GAMEMATRIXROWS], int currentRow, unsigned int& usernameCurrentPoints) {
     generateRow(matrix, currentRow);
     while (allRowFilled(matrix, currentRow)) {
@@ -289,65 +261,81 @@ void generateRowUntilNotDestroyable(char matrix[][GAMEMATRIXROWS], int currentRo
         generateRow(matrix, currentRow);
     }
 }
-
-void moveInDirection(char matrix[][GAMEMATRIXROWS], char direction, int startBlockIndex, int endBlockIndex, int timesToMove, int currentRow) {
-    if (direction == 'r') {
-        for (int i = endBlockIndex; i < GAMEMATRIXROWS - 1; i++) {
-            if (matrix[currentRow][i + 1] == '0' && timesToMove != 0) {
-                for (int j = i; j >= startBlockIndex; j--) {
-                    matrix[currentRow][j+1] = matrix[currentRow][j];
-                }
-                matrix[currentRow][startBlockIndex] = '0';
-                startBlockIndex++;
-                endBlockIndex++;
-                timesToMove--;
-                if (availableSpaceInRowBelow(matrix, startBlockIndex, endBlockIndex, currentRow)) {
-                    moveBrickDown(matrix, startBlockIndex, endBlockIndex, currentRow);
-                    return;
-                }
+void moveBrickLeft(char matrix[][GAMEMATRIXROWS], int startBlockIndex, int endBlockIndex, int timesToMove, int currentRow) {
+    for (int i = startBlockIndex; i > 0; i--) {
+        if (matrix[currentRow][i - 1] == '0' && timesToMove != 0) {
+            for (int j = i; j <= endBlockIndex; j++) {
+                matrix[currentRow][j - 1] = matrix[currentRow][j];
             }
-            else {
-                break;
+            matrix[currentRow][endBlockIndex] = '0';
+            startBlockIndex--;
+            endBlockIndex--;
+            timesToMove--;
+            if (availableSpaceInRowBelow(matrix, startBlockIndex, endBlockIndex, currentRow)) {
+                moveBrickDown(matrix, startBlockIndex, endBlockIndex, currentRow);
+                return;
             }
         }
-    }
-    else if (direction == 'l') {
-        for (int i = startBlockIndex; i > 0; i--) {
-            if (matrix[currentRow][i - 1] == '0' && timesToMove != 0) {
-                for (int j = i; j <= endBlockIndex; j++) {
-                    matrix[currentRow][j - 1] = matrix[currentRow][j];
-                }
-                matrix[currentRow][endBlockIndex] = '0';
-                startBlockIndex--;
-                endBlockIndex--;
-                timesToMove--;
-                if (availableSpaceInRowBelow(matrix, startBlockIndex, endBlockIndex, currentRow)) {
-                    moveBrickDown(matrix, startBlockIndex, endBlockIndex, currentRow);
-                    return;
-                }
-            }
-            else {
-                break;
-            }   
+        else {
+            break;
         }
     }
 }
-
+void moveBrickRight(char matrix[][GAMEMATRIXROWS], int startBlockIndex, int endBlockIndex, int timesToMove, int currentRow) {
+    for (int i = endBlockIndex; i < GAMEMATRIXROWS - 1; i++) {
+        if (matrix[currentRow][i + 1] == '0' && timesToMove != 0) {
+            for (int j = i; j >= startBlockIndex; j--) {
+                matrix[currentRow][j + 1] = matrix[currentRow][j];
+            }
+            matrix[currentRow][startBlockIndex] = '0';
+            startBlockIndex++;
+            endBlockIndex++;
+            timesToMove--;
+            if (availableSpaceInRowBelow(matrix, startBlockIndex, endBlockIndex, currentRow)) {
+                moveBrickDown(matrix, startBlockIndex, endBlockIndex, currentRow);
+                return;
+            }
+        }
+        else {
+            break;
+        }
+    }
+}
+void moveInDirection(char matrix[][GAMEMATRIXROWS], char direction, int startBlockIndex, int endBlockIndex, int timesToMove, int currentRow) {
+    if (direction == 'r') {
+        moveBrickRight(matrix, startBlockIndex, endBlockIndex, timesToMove, currentRow);
+    }
+    else if (direction == 'l') {
+        moveBrickLeft(matrix, startBlockIndex, endBlockIndex, timesToMove, currentRow);
+    }
+}
+bool validMoveEntries(int row, int col, char direction, int movePositions) {
+    bool isValid = row >= 0 && row <= GAMEMATRIXROWS - 1 &&
+        col >= 0 && col <= GAMEMATRIXROWS - 1 && (direction == 'r' || direction == 'l') && movePositions > 0;
+    if (!isValid) {
+        cin.clear();
+        cin.ignore();
+        cout << "Invalid move brick operation(Try Again)" << endl;
+    }
+    return isValid;
+}
+void validateMoveInput(int &row, int &col, char &direction, int &movePositions) {
+    do
+    {
+        cin >> row >> col >> direction >> movePositions;
+        
+    } while (!validMoveEntries(row, col, direction, movePositions));
+}
 void makeMove(char matrix[][GAMEMATRIXROWS], int currentRow) {
     int row, col;
     char direction;
     int movePositions;
-    cin >> row >> col;
-    cin >> direction;
-    cin >> movePositions;
+    validateMoveInput(row, col, direction, movePositions);
     int startBlockIndex = 0;
     int endBlockIndex = 0;
     findBlockRange(matrix[row], startBlockIndex, endBlockIndex, col);
     moveInDirection(matrix, direction, startBlockIndex, endBlockIndex, movePositions, row);
 }
-
-
-
 void runGame(char* username, unsigned int &usernameCurrentPoints) {
     char gameMatrix[GAMEMATRIXROWS][GAMEMATRIXROWS];
     initMatrix(gameMatrix, GAMEMATRIXROWS, GAMEMATRIXROWS, '0');
@@ -363,22 +351,34 @@ void runGame(char* username, unsigned int &usernameCurrentPoints) {
         shrinkRows(gameMatrix, currentRow, usernameCurrentPoints);
         currentRow--;
     }
-    cout << usernameCurrentPoints << endl;
 }
+void saveRecord(const char * username, unsigned int maxPoints) {
+    const char* tempFileName = "temp.txt";
 
+    std::ifstream inFile(FILE_NAME);
+    std::ofstream outFile(tempFileName);
 
-void printDialogue() {
-    std::cout << "|===============================|" << std::endl;
-    std::cout << "|           Options             |" << std::endl;
-    std::cout << "|===============================|" << std::endl;
-    std::cout << "|          1. Play              |" << std::endl;
-    std::cout << "|===============================|" << std::endl;
-    std::cout << "|          2. See Leaderboard   |" << std::endl;
-    std::cout << "|===============================|" << std::endl;
-    std::cout << "Choose an option (1-2): ";
+    if (!inFile.is_open() || !outFile.is_open()) {
+        std::cerr << "Error opening files." << std::endl;
+        return;
+    }
+    char line[MAX_LINE_LENGTH];
+    while (inFile.getline(line, MAX_LINE_LENGTH)) {
+        char currentUsername[MAXNAMESIZE] = " ";
+        int currentPoints = 0;
+        splitRowFromFile(line, currentUsername, currentPoints);
+        if (stringsAreEqual(currentUsername, username)) {
+            outFile << currentUsername << " - " << maxPoints << endl;
+        }
+        else {
+            outFile << currentUsername << " - " << currentPoints << endl;
+        }
+    }
+    inFile.close();
+    outFile.close();
+    remove(FILE_NAME);
+    rename(tempFileName, FILE_NAME);
 }
-
-
 void loadBricksDropGame() {
     char username[MAXNAMESIZE];
     readUsername(username);
@@ -390,33 +390,9 @@ void loadBricksDropGame() {
     if (usernameCurrentPoints > userMaxPoints) {
         cout << "You have beaten your record" << endl;
         cout << "Your new record is " << usernameCurrentPoints << endl;
+        saveRecord(username, usernameCurrentPoints);
     }
-    fstream MyFile(FILE_NAME, ios::in | ios::out); // starts from the beginning of the file
-    if (!MyFile.is_open()) {
-        return;
-    }
-    char line[MAX_LINE_LENGTH];
-    bool userFound = false;
-    int currentPosition = -1;
-    while (MyFile.getline(line, MAX_LINE_LENGTH)) {
-        streampos currentPosition = MyFile.tellg();
-        char currentUsername[MAXNAMESIZE] = " ";
-        int currentPoints = 0;
-        splitRowFromFile(line, currentUsername, currentPoints);
-        if (stringsAreEqual(currentUsername, username)) {
-            userFound = true;
-            
-            break;
-        }
-    }
-    if (userFound) {
-        MyFile.seekp(currentPosition);
-        MyFile << username << " - " << usernameCurrentPoints;
-    }
-    MyFile.close();
 }
-
-
 int strLen(char* str) {
     if (!str) {
         return 0;
@@ -428,8 +404,6 @@ int strLen(char* str) {
     }
     return counter;
 }
-
-
 int numLen(int number) {
     int counter = 0;
     if (number == 0) {
@@ -441,8 +415,6 @@ int numLen(int number) {
     }
     return counter;
 }
-
-
 void printDashes(int len) {
     cout << "|";    
     for (int i = 0; i < len; i++) {
@@ -472,7 +444,6 @@ void showLeaderBoard() {
     }
     MyFile.close();
 }
-
 void runOptions(bool &mainLoop) {
     int command;
     cin >> command;
@@ -490,14 +461,21 @@ void runOptions(bool &mainLoop) {
         break;
     }
 }
-
-
 void printHeader() {
     std::cout << "|===============================|" << std::endl;
     std::cout << "|     Welcome to Bricks Drop    |" << std::endl;
     std::cout << "|===============================|" << std::endl;
 }
-
+void printDialogue() {
+    std::cout << "|===============================|" << std::endl;
+    std::cout << "|           Options             |" << std::endl;
+    std::cout << "|===============================|" << std::endl;
+    std::cout << "|          1. Play              |" << std::endl;
+    std::cout << "|===============================|" << std::endl;
+    std::cout << "|          2. See Leaderboard   |" << std::endl;
+    std::cout << "|===============================|" << std::endl;
+    std::cout << "Choose an option (1-2): ";
+}
 int main()
 {
     printHeader();
@@ -505,5 +483,5 @@ int main()
     while (mainLoop) {
         printDialogue();
         runOptions(mainLoop);
-    }
+    } 
 }
